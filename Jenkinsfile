@@ -1,12 +1,6 @@
 pipeline {
     agent any
 
-    // Optional: only keep this if you actually configured these in Jenkins
-    tools {
-        maven 'maven3'   // Manage Jenkins -> Global Tool Configuration -> Maven
-        jdk 'JDK17'      // Manage Jenkins -> Global Tool Configuration -> JDK
-    }
-
     environment {
         PROJECT_KEY   = 'student-management'
         PROJECT_NAME  = 'Student Management System'
@@ -26,12 +20,10 @@ pipeline {
         stage('Build & Tests') {
             steps {
                 echo "🔨 Building and running tests..."
-                // Simple & robust: run all tests
                 sh 'mvn clean test'
             }
             post {
                 always {
-                    // Publish JUnit reports to Jenkins
                     junit 'target/surefire-reports/*.xml'
                     echo "📊 Test reports published"
                 }
@@ -41,7 +33,7 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 echo "🔍 Analyzing code quality with SonarQube..."
-                // 'sonarqube' must match the name you configured in Jenkins (Manage Jenkins -> Configure System -> SonarQube servers)
+                // Name here must match your SonarQube server in Jenkins config
                 withSonarQubeEnv('sonarqube') {
                     sh """
                         mvn sonar:sonar \
@@ -66,32 +58,4 @@ pipeline {
 
     post {
         always {
-            echo "🎓 Pipeline finished: ${currentBuild.currentResult}"
-            echo "📈 Build URL: ${env.BUILD_URL}"
-        }
-        success {
-            mail to: "${EMAIL_TO}",
-                 subject: "✅ SUCCESS - Student Management Build #${env.BUILD_NUMBER}",
-                 body: """
-                 Build successful! ✅
-
-                 - Project: ${PROJECT_NAME}
-                 - Build:   #${env.BUILD_NUMBER}
-                 - Result:  ${currentBuild.currentResult}
-
-                 🔗 Build URL: ${env.BUILD_URL}
-                 🔗 SonarQube: ${SONARQUBE_URL}/dashboard?id=${PROJECT_KEY}
-                 """
-        }
-        failure {
-            mail to: "${EMAIL_TO}",
-                 subject: "❌ FAILED - Student Management Build #${env.BUILD_NUMBER}",
-                 body: """
-                 Build failed ❌
-
-                 Check details here:
-                 ${env.BUILD_URL}
-                 """
-        }
-    }
-}
+            echo "🎓 Pipeline finished: ${currentBuild.currentR
