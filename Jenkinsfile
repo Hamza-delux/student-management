@@ -34,7 +34,7 @@ pipeline {
             steps {
                 echo "🔍 Analyzing code quality with SonarQube..."
                 // 'sonarqube' must match the Sonar server name in Jenkins config
-                withSonarQubeEnv('sonarqube') {
+                withSonarQubeEnv('My SonarQube Server') {
                     sh """
                         mvn sonar:sonar \
                           -Dsonar.projectKey=${PROJECT_KEY} \
